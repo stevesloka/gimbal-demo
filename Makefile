@@ -14,6 +14,11 @@ GIMBAL_IMAGE=gcr.io/heptio-images/gimbal-discoverer:v0.4.0
 deps:
 	go get github.com/cbednarski/hostess/cmd/hostess
 
+	docker pull $(CONTOUR_IMAGE)
+	docker pull $(ENVOY_IMAGE)
+	docker pull $(ECHO_IMAGE)
+	docker pull $(GIMBAL_IMAGE)
+
 build: deps build_clusters load_images deploy_contour deploy_apps configure_hosts
 
 build_clusters:
