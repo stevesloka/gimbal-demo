@@ -48,6 +48,7 @@ deploy_contour:
 	kubectl config set-cluster $(CLUSTER02_CLUSTER_NAME) --server=https://$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(CLUSTER02_CLUSTER_NAME)-control-plane):6443 --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
 
 	# Deploy discoverers
+	kubectl apply -f ./gimbal/01-common.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 	kubectl apply -f ./gimbal/02-kubernetes-discoverer-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 	kubectl apply -f ./gimbal/02-kubernetes-discoverer-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
