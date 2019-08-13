@@ -48,13 +48,13 @@ deploy_contour:
 	kubectl config set-cluster $(CLUSTER02_CLUSTER_NAME) --server=https://$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(CLUSTER02_CLUSTER_NAME)-control-plane):6443 --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
 
 	# Deploy discoverers
-	kubectl apply -f ./gimbal/01-common.yaml
-	kubectl apply -f ./gimbal/02-kubernetes-discoverer-blue.yaml
-	kubectl apply -f ./gimbal/02-kubernetes-discoverer-green.yaml
+	kubectl apply -f ./gimbal/02-kubernetes-discoverer-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl apply -f ./gimbal/02-kubernetes-discoverer-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 	# Create discoverer secrets
-	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) 
-	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME)
+	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+
 
 deploy_apps:
 	kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
