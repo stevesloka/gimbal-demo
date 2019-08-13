@@ -1,0 +1,20 @@
+kind: Cluster
+apiVersion: kind.sigs.k8s.io/v1alpha3
+kubeadmConfigPatches:
+- |
+  apiVersion: kubeadm.k8s.io/v1beta2
+  metadata:
+    name: config
+  kind: ClusterConfiguration
+  networking:
+    podSubnet: 10.241.0.0/16
+nodes:
+- role: control-plane
+- role: worker
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    listenAddress: "0.0.0.0"
+  - containerPort: 443
+    hostPort: 443
+    listenAddress: "0.0.0.0"

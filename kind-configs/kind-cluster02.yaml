@@ -1,0 +1,13 @@
+kind: Cluster
+apiVersion: kind.sigs.k8s.io/v1alpha3
+kubeadmConfigPatches:
+- |
+  apiVersion: kubeadm.k8s.io/v1beta2
+  metadata:
+    name: config
+  kind: ClusterConfiguration
+  networking:
+    podSubnet: 10.243.0.0/16
+nodes:
+- role: control-plane
+- role: worker
