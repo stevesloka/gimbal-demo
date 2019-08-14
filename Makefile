@@ -13,7 +13,7 @@ GIMBAL_IMAGE=gcr.io/heptio-images/gimbal-discoverer:v0.4.0
 
 deps:
 	go get github.com/cbednarski/hostess/cmd/hostess
-	sudo mv $GOPATH/bin/hostess /usr/local/bin
+	sudo mv $(GOPATH)/bin/hostess /usr/local/bin
 
 	docker pull $(CONTOUR_IMAGE)
 	docker pull $(ENVOY_IMAGE)
