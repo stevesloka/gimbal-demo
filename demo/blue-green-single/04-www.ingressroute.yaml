@@ -10,7 +10,3 @@ spec:
       services: 
         - name: blue
           port: 80
-          weight: 20
-        - name: green
-          port: 80
-          weight: 80

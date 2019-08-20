@@ -8,8 +8,9 @@ CLUSTER02_POD_NETWORK='10.243.0.0/16'
 
 CONTOUR_IMAGE=gcr.io/heptio-images/contour:v0.14.1
 ENVOY_IMAGE=docker.io/envoyproxy/envoy:v1.11.0
-ECHO_IMAGE=hashicorp/http-echo
+ECHO_IMAGE=hashicorp/http-echo:0.2.3
 GIMBAL_IMAGE=gcr.io/heptio-images/gimbal-discoverer:v0.4.0
+NGINX_IMAGE=nginx
 
 deps:
 	go get github.com/cbednarski/hostess/cmd/hostess
@@ -19,6 +20,7 @@ deps:
 	docker pull $(ENVOY_IMAGE)
 	docker pull $(ECHO_IMAGE)
 	docker pull $(GIMBAL_IMAGE)
+	docker pull $(NGINX_IMAGE)
 
 build: deps build_clusters load_images deploy_contour deploy_apps configure_hosts
 
@@ -40,6 +42,9 @@ load_images:
 	kind load docker-image $(ECHO_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
 	kind load docker-image $(GIMBAL_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
 	kind load docker-image $(GIMBAL_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
+	kind load docker-image $(NGINX_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(NGINX_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
+	kind load docker-image $(NGINX_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 
 deploy_contour:
 	# Deploy Gimbal/Contour

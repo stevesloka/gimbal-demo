@@ -26,7 +26,8 @@ spec:
         app: green
     spec:
       containers:
-      - image: hashicorp/http-echo
+      - image: hashicorp/http-echo:0.2.3
+        imagePullPolicy: IfNotPresent
         name: www
         args:
           - -listen=:80

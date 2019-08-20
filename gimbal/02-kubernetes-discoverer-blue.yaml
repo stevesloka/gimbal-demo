@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - image: gcr.io/heptio-images/gimbal-discoverer:v0.4.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: kubernetes-discoverer-blue
         command: ["/kubernetes-discoverer"]
         args: ["--discover-kubecfg-file", "/etc/remote-discover-kubecfg/config", "--backend-name", "$(CLUSTER_NAME)"]
