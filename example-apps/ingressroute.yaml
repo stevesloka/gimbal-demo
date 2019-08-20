@@ -11,5 +11,5 @@ spec:
   routes: 
     - match: /
       services: 
-        - name: blue-web
+        - name: green-web
           port: 80

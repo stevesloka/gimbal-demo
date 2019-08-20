@@ -1,0 +1,16 @@
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  name: blog
+  namespace: marketing
+spec: 
+  routes: 
+    - match: /blog
+      services: 
+        - name: blue
+          port: 80
+          weight: 20
+        - name: green
+          port: 80
+          weight: 80

@@ -1,0 +1,38 @@
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  name: pixelcorpwww
+  namespace: root-ingressroute
+spec: 
+  virtualhost:
+    fqdn: marketing.pixelcorp.local
+  routes: 
+    - match: /
+      services:
+        - name: root
+          port: 80
+    - match: /blog
+      delegate:
+        name: blog
+        namespace: marketing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+    # - match: /foo
+    #   delegate:
+    #     name: blog2
+    #     namespace: marketing

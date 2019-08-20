@@ -37,6 +37,7 @@ load_images:
 	kind load docker-image $(ENVOY_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 	kind load docker-image $(ECHO_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
 	kind load docker-image $(ECHO_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
+	kind load docker-image $(ECHO_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
 	kind load docker-image $(GIMBAL_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
 	kind load docker-image $(GIMBAL_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 
@@ -57,7 +58,6 @@ deploy_contour:
 	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
-
 deploy_apps:
 	kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
 	kubectl apply -f ./example-apps/deployment-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
@@ -65,6 +65,9 @@ deploy_apps:
 
 configure_hosts:
 	sudo hostess add pixelcorp.local 127.0.0.1
+	sudo hostess add blue.pixelcorp.local 127.0.0.1
+	sudo hostess add green.pixelcorp.local 127.0.0.1
+	sudo hostess add marketing.pixelcorp.local 127.0.0.1
 
 	# Add static routes to enable routing
 	sudo ip route add $(GIMBAL_POD_NETWORK) via $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)

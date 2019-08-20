@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: root
+  namespace: root-ingressroute
+spec:
+  selector:
+    app: root
+  ports:
+  - name: http
+    port: 80
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: root
+  namespace: root-ingressroute
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: root
+  template:
+    metadata:
+      labels:
+        app: root
+    spec:
+      containers:
+      - image: hashicorp/http-echo
+        name: www
+        args:
+          - -listen=:80
+          - -text=This is the root version! (marketing.pixelcorp.local)
