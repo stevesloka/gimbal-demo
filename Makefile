@@ -6,10 +6,10 @@ GIMBAL_POD_NETWORK='10.241.0.0/16'
 CLUSTER01_POD_NETWORK='10.242.0.0/16'
 CLUSTER02_POD_NETWORK='10.243.0.0/16'
 
-CONTOUR_IMAGE=gcr.io/heptio-images/contour:v0.14.1
-ENVOY_IMAGE=docker.io/envoyproxy/envoy:v1.11.0
+CONTOUR_IMAGE=projectcontour/contour:v1.0.0
+ENVOY_IMAGE=docker.io/envoyproxy/envoy:v1.11.2
 ECHO_IMAGE=hashicorp/http-echo:0.2.3
-GIMBAL_IMAGE=gcr.io/heptio-images/gimbal-discoverer:v0.4.0
+GIMBAL_IMAGE=stevesloka/gimbal:vmware
 NGINX_IMAGE=nginx
 
 deps:

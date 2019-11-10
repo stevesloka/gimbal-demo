@@ -1,10 +1,11 @@
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
     app: envoy
   name: envoy
-  namespace: heptio-contour
+  namespace: projectcontour
 spec:
   updateStrategy:
     type: RollingUpdate
@@ -25,13 +26,13 @@ spec:
       containers:
       - args:
         - -c
-        - /config/contour.json
+        - /config/envoy.json
         - --service-cluster $(CONTOUR_NAMESPACE)
         - --service-node $(ENVOY_POD_NAME)
         - --log-level info
         command:
         - envoy
-        image: docker.io/envoyproxy/envoy:v1.11.0
+        image: docker.io/envoyproxy/envoy:v1.11.2
         imagePullPolicy: IfNotPresent
         name: envoy
         env:
@@ -56,12 +57,12 @@ spec:
           protocol: TCP
         readinessProbe:
           httpGet:
-            path: /healthz
+            path: /ready
             port: 8002
           initialDelaySeconds: 3
           periodSeconds: 3
         volumeMounts:
-          - name: contour-config
+          - name: envoy-config
             mountPath: /config
           - name: envoycert
             mountPath: /certs
@@ -70,27 +71,30 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["wget", "-qO-", "--post-data=''", "http://localhost:9001/healthcheck/fail"] 
-      dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: true
+              command:
+              - bash
+              - -c
+              - --
+              - echo
+              - -ne
+              - "POST /healthcheck/fail HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+              - '>/dev/tcp/localhost/9001'
       initContainers:
       - args:
         - bootstrap
-        - /config/contour.json
-        - --xds-address
-        - contour
-        - --xds-port
-        - "8001"
+        - /config/envoy.json
+        - --xds-address=contour
+        - --xds-port=8001
         - --envoy-cafile=/ca/cacert.pem
         - --envoy-cert-file=/certs/tls.crt
         - --envoy-key-file=/certs/tls.key
         command:
         - contour
-        image: gcr.io/heptio-images/contour:v0.14.1
-        imagePullPolicy:  IfNotPresent
+        image: docker.io/projectcontour/contour:master
+        imagePullPolicy: Always
         name: envoy-initconfig
         volumeMounts:
-        - name: contour-config
+        - name: envoy-config
           mountPath: /config
         - name: envoycert
           mountPath: /certs
@@ -105,12 +109,12 @@ spec:
               fieldPath: metadata.namespace
       automountServiceAccountToken: false
       volumes:
-        - name: contour-config
+        - name: envoy-config
           emptyDir: {}
         - name: envoycert
           secret:
             secretName: envoycert
         - name: cacert
           secret:
-            secretName:   cacert
-      restartPolicy:  Always
+            secretName: cacert
+      restartPolicy: Always

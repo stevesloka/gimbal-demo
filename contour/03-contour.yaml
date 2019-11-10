@@ -1,12 +1,19 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     app: contour
   name: contour
-  namespace: heptio-contour
+  namespace: projectcontour
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # This value of maxSurge means that during a rolling update
+      # the new ReplicaSet will be created first.
+      maxSurge: 50%
   selector:
     matchLabels:
       app: contour
@@ -31,6 +38,7 @@ spec:
       - args:
         - serve
         - --incluster
+        - --use-extensions-v1beta1-ingress
         - --xds-address=0.0.0.0
         - --xds-port=8001
         - --envoy-service-http-port=80
@@ -38,9 +46,10 @@ spec:
         - --contour-cafile=/ca/cacert.pem
         - --contour-cert-file=/certs/tls.crt
         - --contour-key-file=/certs/tls.key
+        - --config-path=/config/contour.yaml
         command: ["contour"]
-        image: gcr.io/heptio-images/contour:v0.14.1
-        imagePullPolicy:  IfNotPresent
+        image: docker.io/projectcontour/contour:master
+        imagePullPolicy: Always
         name: contour
         ports:
         - containerPort: 8001
@@ -54,16 +63,26 @@ spec:
             path: /healthz
             port: 8000
         readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 8000
+          tcpSocket:
+            port: 8001
+          initialDelaySeconds: 15
+          periodSeconds: 10
         volumeMounts:
           - name: contourcert
-            mountPath: "/certs"
+            mountPath: /certs
             readOnly: true
           - name: cacert
-            mountPath: "/ca"
+            mountPath: /ca
             readOnly: true
+          - name: contour-config
+            mountPath: /config
+            readOnly: true
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
       dnsPolicy: ClusterFirst
       serviceAccountName: contour
       volumes:
@@ -72,5 +91,11 @@ spec:
             secretName: contourcert
         - name: cacert
           secret:
-            secretName:   cacert
-
+            secretName: cacert
+        - name: contour-config
+          configMap:
+            name: contour
+            defaultMode: 0644
+            items:
+            - key: contour.yaml
+              path: contour.yaml
