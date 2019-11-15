@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: root-proxies
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata: 
+  name: web-main
+  namespace: root-proxies
+spec: 
+  virtualhost:
+    fqdn: pixelproxy.io
+  includes:
+  - name: default-proxy
+    namespace: default
+    conditions:
+    - prefix: /
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata: 
+  name: default-proxy
+  namespace: default
+spec: 
+  routes: 
+    - services: 
+        - name: blue-web
+          port: 80

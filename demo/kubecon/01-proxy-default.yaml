@@ -6,6 +6,11 @@ metadata:
 spec:
   virtualhost:
     fqdn: pixelproxy.io
+  includes:
+  - name: rootapp
+    namespace: default
+    conditions:
+    - prefix: /
   routes:
   - services:
     - name: rootapp

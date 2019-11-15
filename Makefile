@@ -27,7 +27,7 @@ deps:
 	docker pull $(GIMBAL_IMAGE)
 	docker pull $(APP_IMAGE)
 
-build: deps build_clusters load_images deploy_contour deploy_apps configure_hosts
+build: deps build_clusters deploy_contour deploy_apps configure_hosts
 
 build_clusters:
 	kind create cluster --name=$(GIMBAL_CLUSTER_NAME) --wait=4m --config=kind-configs/kind-gimbal.yaml & \
@@ -80,7 +80,7 @@ deploy_apps:
 
 	kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
 	kubectl apply -f ./example-apps/deployment-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
-	kubectl apply -f ./example-apps/httpproxy.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl apply -f ./demo/kubecon/01-root-httpproxy.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 configure_hosts:
 	sudo hostess add pixelproxy.io 127.0.0.1
@@ -103,3 +103,6 @@ clean:
 	sudo ip route del $(GIMBAL_POD_NETWORK)
 	sudo ip route del $(CLUSTER01_POD_NETWORK)
 	sudo ip route del $(CLUSTER02_POD_NETWORK)
+
+	# Stop discoverer
+	pkill -f "vmware-discoverer"
