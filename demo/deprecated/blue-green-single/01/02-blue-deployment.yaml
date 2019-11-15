@@ -30,4 +30,4 @@ spec:
         name: www
         args:
           - -listen=:80
-          - -text=This is the blue version! (marketing.pixelcorp.local/blog)
+          - -text=This is the blue version! (marketing.pixelproxy.io/blog)

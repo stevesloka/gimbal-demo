@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: root
-  namespace: root-ingressroute
+  name: green
+  namespace: marketing
 spec:
   selector:
-    app: root
+    app: green
   ports:
   - name: http
     port: 80
@@ -13,21 +13,22 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: root
-  namespace: root-ingressroute
+  name: green
+  namespace: marketing
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: root
+      app: green
   template:
     metadata:
       labels:
-        app: root
+        app: green
     spec:
       containers:
       - image: hashicorp/http-echo:0.2.3
+        imagePullPolicy: IfNotPresent
         name: www
         args:
           - -listen=:80
-          - -text=This is the root version! (marketing.pixelcorp.local)
+          - -text=!!!This is green!  (marketing.pixelproxy.io/blog)

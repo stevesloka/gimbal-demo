@@ -1,5 +1,5 @@
-apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
 metadata: 
   labels:
     app: web-main
@@ -7,9 +7,8 @@ metadata:
   namespace: default
 spec: 
   virtualhost:
-    fqdn: pixelcorp.local
+    fqdn: pixelproxy.io
   routes: 
-    - match: /
-      services: 
+    - services: 
         - name: green-web
           port: 80

@@ -1,0 +1,36 @@
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata: 
+  name: contourwww
+  namespace: root-httpproxy
+spec: 
+  virtualhost:
+    fqdn: marketing.pixelproxy.io
+  includes:
+  - name: blog
+    namespace: marketing
+    conditions:
+    - prefix: /blog
+  routes: 
+    - services:
+        - name: root
+          port: 80
+
+
+
+
+
+
+
+
+
+
+
+
+
+#  includes:
+#   - name: blog2
+#     namespace: marketing
+#     conditions:
+#     - prefix: /foo

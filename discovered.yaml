@@ -1,0 +1,72 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      gimbal.heptio.com/backend: vmware
+      gimbal.heptio.com/service: api
+    name: vmware-api
+    namespace: marketing
+  spec:
+    clusterIP: None
+    ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      gimbal.heptio.com/backend: vmware
+      gimbal.heptio.com/service: web
+    name: vmware-web
+    namespace: marketing
+  spec:
+    clusterIP: None
+    ports:
+    - name: web
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Endpoints
+  metadata:
+    labels:
+      gimbal.heptio.com/backend: vmware
+      gimbal.heptio.com/service: api
+    name: vmware-api
+    namespace: marketing
+  subsets:
+  - addresses:
+    - ip: 192.168.53.135
+    - ip: 192.168.53.137
+    ports:
+    - name: api
+      port: 8080
+      protocol: TCP
+- apiVersion: v1
+  kind: Endpoints
+  metadata:
+    labels:
+      gimbal.heptio.com/backend: vmware
+      gimbal.heptio.com/service: web
+    name: vmware-web
+    namespace: marketing
+  subsets:
+  - addresses:
+    - ip: 192.168.53.136
+    - ip: 192.168.53.138
+    ports:
+    - name: web
+      port: 80
+      protocol: TCP
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

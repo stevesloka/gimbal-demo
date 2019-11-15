@@ -1,0 +1,54 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: root
+  namespace: root-proxies
+spec:
+  virtualhost:
+    fqdn: pixelproxy.io
+  routes:
+  - services:
+    - name: rootapp
+      port: 80
+    conditions:
+      - prefix: /
+
+
+
+
+
+
+
+
+
+  # - services:
+  #   - name: secureapp
+  #     port: 80
+  #   conditions:
+  #     - prefix: /secure
+  #     - header:
+  #         name: User-Agent
+  #         notcontains: Firefox
+  #     - header:
+  #         name: User-Agent
+  #         notcontains: Chrome
+    
+    
+
+
+
+
+
+
+  #         name: User-Agent
+  #         notcontains: Chrome
+
+
+  # includes:
+  # - name: blogsite
+  #   namespace: marketing
+  #   conditions:
+  #   - prefix: /blog
+  #   - header:
+  #       name: x-header
+  #       exact: abc

@@ -1,0 +1,31 @@
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: blogsite
+  namespace: marketing
+spec:
+  routes:
+  - services:
+    - name: wwwblog
+      port: 80
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#  includes:
+#   - name: www
+#     namespace: marketing
+#     conditions:
+#     - prefix: /info

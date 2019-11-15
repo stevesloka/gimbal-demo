@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubernetes-discoverer-vmware
+    cluster: k8s
+  name: k8s-kubernetes-discoverer-vmware
+  namespace: gimbal-discovery
+spec:
+  selector:
+    matchLabels:
+      app: kubernetes-discoverer-vmware
+      cluster: k8s
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kubernetes-discoverer-vmware
+        cluster: k8s
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - image: stevesloka/gimbal:vmware
+        imagePullPolicy: IfNotPresent
+        name: kubernetes-discoverer-vmware
+        command: ["/vmware-discoverer"]
+        args: ["--backend-name", "$(CLUSTER_NAME)", "--vmware-insecure"]
+        env:
+        - name: CLUSTER_NAME
+          valueFrom:
+            secretKeyRef:
+              name: remote-discover-vmware
+              key: backend-name
+        - name: VMWARE_URL
+          valueFrom:
+            secretKeyRef:
+              name: remote-discover-vmware
+              key: VMWARE_URL
+        - name: VMWARE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: remote-discover-vmware
+              key: VMWARE_USERNAME
+        - name: VMWARE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: remote-discover-vmware
+              key: VMWARE_PASSWORD
+      dnsPolicy: ClusterFirst
+      serviceAccountName: gimbal-discoverer
+      terminationGracePeriodSeconds: 30

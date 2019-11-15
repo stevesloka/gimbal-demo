@@ -1,12 +1,13 @@
 ---
-apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
 metadata: 
   name: blog2
   namespace: marketing
 spec: 
   routes: 
-    - match: /blog
+  - conditions:
+    - prefix: /blog
       services: 
         - name: green
           port: 80

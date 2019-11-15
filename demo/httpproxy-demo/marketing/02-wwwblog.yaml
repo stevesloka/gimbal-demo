@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wwwblog
+  namespace: marketing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wwwblog
+  template:
+    metadata:
+      labels:
+        app: wwwblog
+    spec:
+      containers:
+      - name: echo
+        image: stevesloka/echo-server
+        command: ["echo-server"]
+        args:
+          - --echotext=This is the blog site!
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http
+            containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: wwwblog
+  name: wwwblog
+  namespace: marketing
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: wwwblog
+  type: ClusterIP

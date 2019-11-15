@@ -1,0 +1,14 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: root-green
+  namespace: default
+spec:
+  virtualhost:
+    fqdn: green.default.contour
+  routes:
+  - services:
+    - name: green-web
+      port: 80
+    conditions:
+      - prefix: /

@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: engineering
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engineering
+  namespace: teama
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: engineering
+    spec:
+      containers:
+      - name: echo
+        image: stevesloka/echo-server
+        command: ["echo-server"]
+        args:
+          - --echotext=This is the engineering site!
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: http
+            containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: engineering
+  name: engineering
+  namespace: teama
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: engineering
+  type: ClusterIP
