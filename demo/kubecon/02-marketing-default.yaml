@@ -5,18 +5,24 @@ metadata:
   namespace: root-proxies
 spec:
   virtualhost:
-    fqdn: pixelproxy.io
+    fqdn: marketing.pixelproxy.io
   includes:
-  - name: rootapp
-    namespace: default
+  - name: marketingroot
+    namespace: marketing
     conditions:
     - prefix: /
-  routes:
-  - services:
-    - name: rootapp
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: marketingroot
+  namespace: marketing
+spec: 
+  routes: 
+  - services: 
+    - name: vmware-windows
       port: 80
-    conditions:
-      - prefix: /
+
 
 
 

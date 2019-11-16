@@ -63,7 +63,7 @@ deploy_contour:
 	kubectl apply -f ./gimbal/01-common.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 	kubectl apply -f ./gimbal/02-kubernetes-discoverer-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 	kubectl apply -f ./gimbal/02-kubernetes-discoverer-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
-	# kubectl apply -f ./gimbal/02-kubernetes-discoverer-vmware.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl apply -f ./gimbal/02-kubernetes-discoverer-vmware.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 	# Create discoverer secret
 	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
@@ -76,7 +76,7 @@ deploy_contour:
 	kubectl apply -f ./gimbal/gimbal-dns.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 deploy_apps:
-	VMWARE_URL=$(VMWARE_URL) VMWARE_USERNAME=$(VMWARE_USERNAME) VMWARE_PASSWORD=$(VMWARE_PASSWORD) vmware-discoverer --backend-name=vmware --gimbal-kubecfg-file=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)') --vmware-insecure &
+	# VMWARE_URL=$(VMWARE_URL) VMWARE_USERNAME=$(VMWARE_USERNAME) VMWARE_PASSWORD=$(VMWARE_PASSWORD) vmware-discoverer --backend-name=vmware --gimbal-kubecfg-file=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)') --vmware-insecure &
 
 	kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
 	kubectl apply -f ./example-apps/deployment-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
