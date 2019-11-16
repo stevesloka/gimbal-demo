@@ -4,7 +4,7 @@ data:
     .:53 {
         errors
         health
-        file /etc/coredns/contour.db default.contour
+        file /etc/coredns/contour.db contour.local
         kubernetes cluster.local in-addr.arpa ip6.arpa {
            pods insecure
            upstream
@@ -19,18 +19,11 @@ data:
         loadbalance
     }
   contour.db: |
-    $TTL 60
-    $ORIGIN default.contour.
-    @           IN  SOA  default.contour. admin.default.contour. (
-                     2017072300 ; Serial
-                     4H         ; Refresh
-                     1H         ; Retry
-                     7D         ; Expire
-                     4H )       ; Negative Cache TTL
-
-
-    @           IN  A    127.0.0.1
-    *.default.contour. IN A GIMBALIP
+    contour.local.            IN      SOA     sns.dns.icann.org. noc.dns.icann.org. 2015082541 7200 3600 1209600 3600
+    contour.local.            IN      NS      b.iana-servers.net.
+    contour.local.            IN      NS      a.iana-servers.net.
+    contour.local.            IN      A       GIMBALIP
+    api.default.contour.local.   IN      A       GIMBALIP
 kind: ConfigMap
 metadata:
   name: coredns

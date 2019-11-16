@@ -63,14 +63,16 @@ deploy_contour:
 	kubectl apply -f ./gimbal/02-kubernetes-discoverer-vmware.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 	# Create discoverer secret
-	# kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
-	# kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
-	# kubectl create secret -n gimbal-discovery generic remote-discover-$(CLUSTER03_CLUSTER_NAME) --from-literal=VMWARE_URL=$(VMWARE_URL) --from-literal=VMWARE_USERNAME=$(VMWARE_USERNAME) --from-literal=VMWARE_PASSWORD=$(VMWARE_PASSWORD) --from-literal=backend-name=$(CLUSTER03_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl create secret -n gimbal-discovery generic remote-discover-$(CLUSTER03_CLUSTER_NAME) --from-literal=VMWARE_URL=$(VMWARE_URL) --from-literal=VMWARE_USERNAME=$(VMWARE_USERNAME) --from-literal=VMWARE_PASSWORD=$(VMWARE_PASSWORD) --from-literal=backend-name=$(CLUSTER03_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 	# Apply DNS Configuration
-	cat ./gimbal/upstream-dns.yaml | sed "s/GIMBALIP/$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)/g" | kubectl apply --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)') -f -
-	cat ./gimbal/upstream-dns.yaml | sed "s/GIMBALIP/$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)/g" | kubectl apply --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)') -f -
+	cat ./gimbal/upstream-clusters.yaml | sed "s/GIMBALIP/$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)/g" | kubectl apply --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)') -f -
+	cat ./gimbal/upstream-clusters.yaml | sed "s/GIMBALIP/$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)/g" | kubectl apply --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)') -f -
 	kubectl apply -f ./gimbal/gimbal-dns.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl apply -f ./gimbal/gimbal-dns.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
+	kubectl apply -f ./gimbal/gimbal-dns.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
 
 deploy_apps:
 	# VMWARE_URL=$(VMWARE_URL) VMWARE_USERNAME=$(VMWARE_USERNAME) VMWARE_PASSWORD=$(VMWARE_PASSWORD) vmware-discoverer --backend-name=vmware --gimbal-kubecfg-file=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)') --vmware-insecure &
@@ -103,3 +105,6 @@ clean:
 
 	# Stop discoverer
 	# pkill -f "vmware-discoverer"
+
+resetdemo:
+	kubectl delete -f ./demo/kubecon --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')

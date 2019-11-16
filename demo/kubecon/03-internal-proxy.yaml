@@ -1,12 +1,12 @@
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
-metadata: 
+metadata:
   name: internal-api
-  namespace: default
+  namespace: marketing
 spec: 
   virtualhost:
-    fqdn: api.default.contour
+    fqdn: api.marketing.contour
   routes: 
   - services: 
-    - name: blue-web
+    - name: vmware-api
       port: 80
