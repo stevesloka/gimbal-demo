@@ -1,0 +1,12 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata: 
+  name: internal-api
+  namespace: default
+spec: 
+  virtualhost:
+    fqdn: api.default.contour
+  routes: 
+  - services: 
+    - name: blue-web
+      port: 80

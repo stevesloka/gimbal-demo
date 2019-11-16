@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: util
+  labels:
+    app: util
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: util
+  template:
+    metadata:
+      labels:
+        app: util
+    spec:
+      containers:
+      - name: util
+        image: stevesloka/debug
+        imagePullPolicy: Always

@@ -12,8 +12,9 @@ ENVOY_IMAGE=docker.io/envoyproxy/envoy:v1.11.2
 ECHO_IMAGE=hashicorp/http-echo:0.2.3
 GIMBAL_IMAGE=stevesloka/gimbal:vmware
 APP_IMAGE=stevesloka/echo-server
+UTIL_IMAGE=arunvelsriram/utils
 
-VMWARE_URL=https://10.42.0.25/sdk
+VMWARE_URL=https://192.168.2.200/sdk
 VMWARE_USERNAME=administrator@vsphere.local
 VMWARE_PASSWORD=VMware1!
 
@@ -26,6 +27,7 @@ deps:
 	docker pull $(ECHO_IMAGE)
 	docker pull $(GIMBAL_IMAGE)
 	docker pull $(APP_IMAGE)
+	docker pull $(UTIL_IMAGE)
 
 build: deps build_clusters deploy_contour deploy_apps configure_hosts
 
@@ -36,20 +38,15 @@ build_clusters:
 	wait;
 
 load_images:
-	kind load docker-image $(CONTOUR_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	kind load docker-image $(CONTOUR_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
-	kind load docker-image $(CONTOUR_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
-	kind load docker-image $(ENVOY_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	kind load docker-image $(ENVOY_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
-	kind load docker-image $(ENVOY_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
-	kind load docker-image $(ECHO_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
-	kind load docker-image $(ECHO_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
-	kind load docker-image $(ECHO_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	kind load docker-image $(GIMBAL_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
-	kind load docker-image $(GIMBAL_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
-	kind load docker-image $(APP_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	kind load docker-image $(APP_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
-	kind load docker-image $(APP_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
+	# kind load docker-image $(CONTOUR_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	# kind load docker-image $(GIMBAL_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	# kind load docker-image $(ENVOY_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(UTIL_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
+	kind load docker-image $(UTIL_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
+	kind load docker-image $(UTIL_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	# kind load docker-image $(APP_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	# kind load docker-image $(APP_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
+	# kind load docker-image $(APP_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 
 deploy_contour:
 	# Deploy Gimbal/Contour
@@ -66,9 +63,9 @@ deploy_contour:
 	kubectl apply -f ./gimbal/02-kubernetes-discoverer-vmware.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 	# Create discoverer secret
-	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
-	kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
-	kubectl create secret -n gimbal-discovery generic remote-discover-$(CLUSTER03_CLUSTER_NAME) --from-literal=VMWARE_URL=$(VMWARE_URL) --from-literal=VMWARE_USERNAME=$(VMWARE_USERNAME) --from-literal=VMWARE_PASSWORD=$(VMWARE_PASSWORD) --from-literal=backend-name=$(CLUSTER03_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	# kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER01_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER01_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	# kubectl create secret -n gimbal-discovery generic remote-discover-kubecfg-$(CLUSTER02_CLUSTER_NAME) --from-file="$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')" --from-literal=backend-name=$(CLUSTER02_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	# kubectl create secret -n gimbal-discovery generic remote-discover-$(CLUSTER03_CLUSTER_NAME) --from-literal=VMWARE_URL=$(VMWARE_URL) --from-literal=VMWARE_USERNAME=$(VMWARE_USERNAME) --from-literal=VMWARE_PASSWORD=$(VMWARE_PASSWORD) --from-literal=backend-name=$(CLUSTER03_CLUSTER_NAME) --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
 
 	# Apply DNS Configuration
 	cat ./gimbal/upstream-dns.yaml | sed "s/GIMBALIP/$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)/g" | kubectl apply --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)') -f -
@@ -105,4 +102,4 @@ clean:
 	sudo ip route del $(CLUSTER02_POD_NETWORK)
 
 	# Stop discoverer
-	pkill -f "vmware-discoverer"
+	# pkill -f "vmware-discoverer"

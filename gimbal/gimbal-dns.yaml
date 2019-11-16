@@ -3,7 +3,11 @@ data:
   Corefile: |
     .:53 {
         errors
-        health
+        health 
+        rewrite stop {
+            name regex ([a-zA-Z0-9-]*)\.([a-zv0-9-_]*)\.contour envoy.projectcontour.svc.cluster.local
+            answer name ([a-zA-Z0-9-_]*)-([a-zA-Z0-9-_]*)\.projectcontour\.svc\.cluster\.local {1}.{2}.contour
+        }
         kubernetes cluster.local in-addr.arpa ip6.arpa {
            pods insecure
            upstream
@@ -11,23 +15,6 @@ data:
            ttl 30
         }
         prometheus :9153
-        forward . /etc/resolv.conf
-        cache 30
-        loop
-        reload
-        loadbalance
-    }
-    contour:53 {
-        errors
-        rewrite continue {
-            name regex ([a-zA-Z0-9-]*)\.([a-zv0-9-_]*)\.contour envoy.projectcontour.svc.cluster.local
-            answer name ([a-zA-Z0-9-_]*)-([a-zA-Z0-9-_]*)\.projectcontour\.svc\.cluster\.local {1}.{2}.contour
-        }
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
-            pods insecure
-            upstream
-            fallthrough in-addr.arpa ip6.arpa
-        }
         forward . /etc/resolv.conf
         cache 30
         loop
