@@ -30,4 +30,4 @@ spec:
         name: www
         args:
           - -listen=:80
-          - -text=This is the root version! (marketing.pixelproxy.io)
+          - -text=This is the root version! (marketing.pixelproxy.net)

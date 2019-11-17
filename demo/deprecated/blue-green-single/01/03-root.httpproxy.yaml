@@ -6,7 +6,7 @@ metadata:
   namespace: root-httpproxy
 spec: 
   virtualhost:
-    fqdn: marketing.pixelproxy.io
+    fqdn: marketing.pixelproxy.net
   includes:
   - name: blog
     namespace: marketing

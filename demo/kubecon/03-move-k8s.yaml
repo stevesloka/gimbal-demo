@@ -1,0 +1,17 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata: 
+  name: default-proxy
+  namespace: marketing
+spec: 
+  routes: 
+    - services: 
+        - name: vmware-web
+          port: 80
+        - name: blue-web
+          port: 80
+    - conditions:
+      - prefix: /blog
+      services: 
+        - name: vmware-windows
+          port: 80

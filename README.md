@@ -5,7 +5,7 @@
 ## Curl 
 
 ```bash
-$ while sleep 1; do curl http://marketing.pixelproxy.io/blog ; done
+$ while sleep 1; do curl http://marketing.pixelproxy.net/blog ; done
 ```
 
 ## Sample Apps

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: baremetal
+    namespace: projectcontour
+  spec:
+    ports:
+    - name: baremetal
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    type: ClusterIP
+- apiVersion: v1
+  kind: Endpoints
+  metadata:
+    name: baremetal
+    namespace: projectcontour
+  subsets:
+  - addresses:
+    - ip: 192.168.2.50
+    ports:
+    - name: baremetal
+      port: 80
+      protocol: TCP

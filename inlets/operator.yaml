@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inlets-operator
+  namespace: inlets
+  labels:
+    app: inlets-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inlets-operator
+  template:
+    metadata:
+      labels:
+        app: inlets-operator
+      annotations:
+        prometheus.io.scrape: "false"
+    spec:
+      serviceAccountName: inlets-operator
+      containers:
+      - name: operator
+        image: inlets/inlets-operator:0.4.4
+        imagePullPolicy: Always
+        command:
+          - ./inlets-operator
+          # - "-annotated-only"
+          - "-provider=digitalocean"
+          - "-access-key-file=/var/secrets/inlets/inlets-access-key"
+          # For Packet users
+          # - "-provider=packet"
+          # For inlets-pro
+          # - "-license=JWT-OBTAINED-FROM-https://github.com/alexellis/inlets-pro-pkg"
+        env:
+        - name: client_image
+          value: inlets/inlets:2.6.1
+        resources:
+          limits:
+            memory: 128Mi
+          requests:
+            memory: 25Mi
+        volumeMounts:
+        - mountPath: /var/secrets/inlets/
+          name: inlets-access-key
+          readOnly: true
+      volumes:
+      - name: inlets-access-key
+        secret:
+          defaultMode: 420
+          secretName: inlets-access-key

@@ -12,7 +12,7 @@ ENVOY_IMAGE=docker.io/envoyproxy/envoy:v1.11.2
 ECHO_IMAGE=hashicorp/http-echo:0.2.3
 GIMBAL_IMAGE=stevesloka/gimbal:vmware
 APP_IMAGE=stevesloka/echo-server
-UTIL_IMAGE=arunvelsriram/utils
+UTIL_IMAGE=stevesloka/debug
 
 VMWARE_URL=https://192.168.2.200/sdk
 VMWARE_USERNAME=administrator@vsphere.local
@@ -29,7 +29,7 @@ deps:
 	docker pull $(APP_IMAGE)
 	docker pull $(UTIL_IMAGE)
 
-build: deps build_clusters deploy_contour deploy_apps configure_hosts
+build: build_clusters deploy_contour deploy_apps configure_hosts
 
 build_clusters:
 	kind create cluster --name=$(GIMBAL_CLUSTER_NAME) --wait=4m --config=kind-configs/kind-gimbal.yaml & \
@@ -38,19 +38,25 @@ build_clusters:
 	wait;
 
 load_images:
-	# kind load docker-image $(CONTOUR_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	# kind load docker-image $(GIMBAL_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	# kind load docker-image $(ENVOY_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(CONTOUR_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(CONTOUR_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
+	kind load docker-image $(CONTOUR_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
+	kind load docker-image $(GIMBAL_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(ENVOY_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(ENVOY_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
+	kind load docker-image $(ENVOY_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 	kind load docker-image $(UTIL_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
 	kind load docker-image $(UTIL_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 	kind load docker-image $(UTIL_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	# kind load docker-image $(APP_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
-	# kind load docker-image $(APP_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
-	# kind load docker-image $(APP_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
+	kind load docker-image $(APP_IMAGE) --name=$(GIMBAL_CLUSTER_NAME)
+	kind load docker-image $(APP_IMAGE) --name=$(CLUSTER01_CLUSTER_NAME)
+	kind load docker-image $(APP_IMAGE) --name=$(CLUSTER02_CLUSTER_NAME)
 
 deploy_contour:
 	# Deploy Gimbal/Contour
 	kubectl apply -f contour --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	kubectl apply -f contour --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
+	kubectl apply -f contour --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
 
 	# Update kubeconfig files
 	kubectl config set-cluster $(CLUSTER01_CLUSTER_NAME) --server=https://$(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(CLUSTER01_CLUSTER_NAME)-control-plane):6443 --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
@@ -76,16 +82,17 @@ deploy_contour:
 
 deploy_apps:
 	# VMWARE_URL=$(VMWARE_URL) VMWARE_USERNAME=$(VMWARE_USERNAME) VMWARE_PASSWORD=$(VMWARE_PASSWORD) vmware-discoverer --backend-name=vmware --gimbal-kubecfg-file=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)') --vmware-insecure &
-
-	kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
-	kubectl apply -f ./example-apps/deployment-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
-	kubectl apply -f ./demo/kubecon/01-root-httpproxy.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(GIMBAL_CLUSTER_NAME)')
+	
+	kubectl apply -f ./example-apps/marketing-namespace.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
+	kubectl apply -f ./example-apps/marketing-namespace.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
+	# kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
+	# kubectl apply -f ./example-apps/deployment-green.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER02_CLUSTER_NAME)')
 
 configure_hosts:
-	sudo hostess add pixelproxy.io 127.0.0.1
-	sudo hostess add blue.pixelproxy.io 127.0.0.1
-	sudo hostess add green.pixelproxy.io 127.0.0.1
-	sudo hostess add marketing.pixelproxy.io 127.0.0.1
+	sudo hostess add pixelproxy.net 127.0.0.1
+	sudo hostess add blue.pixelproxy.net 127.0.0.1
+	sudo hostess add green.pixelproxy.net 127.0.0.1
+	sudo hostess add marketing.pixelproxy.net 127.0.0.1
 
 	# Add static routes to enable routing
 	sudo ip route add $(GIMBAL_POD_NETWORK) via $(shell docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(GIMBAL_CLUSTER_NAME)-worker)

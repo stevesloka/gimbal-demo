@@ -9,11 +9,11 @@ spec:
     - dns01:
         provider: route53
       domains:
-      - '*.pixelproxy.io'
-      - pixelproxy.io
-  commonName: '*.pixelproxy.io'
+      - '*.pixelproxy.net'
+      - pixelproxy.net
+  commonName: '*.pixelproxy.net'
   dnsNames:
-  - pixelproxy.io
+  - pixelproxy.net
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-prod-dns

@@ -31,4 +31,4 @@ spec:
         name: www
         args:
           - -listen=:80
-          - -text=!!!This is green!  (marketing.pixelproxy.io/blog)
+          - -text=!!!This is green!  (marketing.pixelproxy.net/blog)

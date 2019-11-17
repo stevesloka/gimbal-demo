@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
+  namespace: marketing
   labels:
     app: web
 spec:
@@ -27,6 +28,7 @@ apiVersion: v1
 kind: Service
 metadata:
  name: web
+ namespace: marketing
 spec:
  ports:
  - port: 80
