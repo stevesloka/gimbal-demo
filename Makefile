@@ -91,6 +91,9 @@ deploy_apps:
 deploy_blue:
 	kubectl apply -f ./example-apps/deployment-blue.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
 
+update_blue:
+	kubectl apply -f ./demo/kubecon/04b-blue-update.yaml --kubeconfig=$(shell kind get kubeconfig-path --name='$(CLUSTER01_CLUSTER_NAME)')
+
 configure_hosts:
 	sudo hostess add pixelproxy.net 127.0.0.1
 	sudo hostess add blue.pixelproxy.net 127.0.0.1
