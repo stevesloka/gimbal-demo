@@ -5,7 +5,7 @@ items:
   kind: Service
   metadata:
     name: baremetal
-    namespace: projectcontour
+    namespace: marketing
   spec:
     ports:
     - name: baremetal
@@ -17,7 +17,7 @@ items:
   kind: Endpoints
   metadata:
     name: baremetal
-    namespace: projectcontour
+    namespace: marketing
   subsets:
   - addresses:
     - ip: 192.168.2.50

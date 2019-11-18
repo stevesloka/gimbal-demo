@@ -9,4 +9,4 @@ spec:
   routes: 
   - services: 
     - name: vmware-api
-      port: 80
+      port: 8080

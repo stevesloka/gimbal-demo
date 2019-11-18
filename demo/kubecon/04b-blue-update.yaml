@@ -3,6 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
+  namespace: marketing
   labels:
     app: web
 spec:
@@ -25,4 +26,4 @@ spec:
         - containerPort: 8080
         env:
         - name: API_URL
-          value: http://api.default.contour
+          value: http://api.marketing.contour

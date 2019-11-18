@@ -11,5 +11,5 @@ $ while sleep 1; do curl http://marketing.pixelproxy.net/blog ; done
 ## Sample Apps
 
 ```
-$ docker run -d -p 8080:8080 stevesloka/echo-server echo-server --echotext="This is app01!"
+$ docker run --restart always -d -p 8080:8080 stevesloka/echo-server echo-server --echotext="This is app01!"
 ```

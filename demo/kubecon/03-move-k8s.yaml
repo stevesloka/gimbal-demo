@@ -8,8 +8,10 @@ spec:
     - services: 
         - name: vmware-web
           port: 80
+          weight: 100
         - name: blue-web
           port: 80
+          weight: 0
     - conditions:
       - prefix: /blog
       services: 
